@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Finance</title>
+<meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./favicon-32.png" sizes="32x32">
+<style>
+  :root{
+    --paper:#F5F5F7;
+    --paper-alt:rgba(0,0,0,0.045);
+    --card:#FFFFFF;
+    --sidebar-bg:rgba(255,255,255,0.78);
+    --ink:#1D1D1F;
+    --ink-soft:#48484A;
+    --muted:#6E6E73;
+    --border:rgba(0,0,0,0.09);
+    --brass:#007AFF;
+    --brass-soft:rgba(0,122,255,0.12);
+    --brass-text:#0060DF;
+    --green:#248A3D;
+    --green-soft:rgba(52,199,89,0.14);
+    --brick:#D70015;
+    --brick-soft:rgba(255,59,48,0.12);
+    --radius:14px;
+    --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Inter","Helvetica Neue",Arial,sans-serif;
+    --serif:var(--sans);
+    --mono:var(--sans);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#000000;
+      --paper-alt:rgba(255,255,255,0.06);
+      --card:#1C1C1E;
+      --sidebar-bg:rgba(28,28,30,0.78);
+      --ink:#F5F5F7;
+      --ink-soft:#C7C7CC;
+      --muted:#98989D;
+      --border:rgba(255,255,255,0.09);
+      --brass:#0A84FF;
+      --brass-soft:rgba(10,132,255,0.18);
+      --brass-text:#409CFF;
+      --green:#30D158;
+      --green-soft:rgba(48,209,88,0.16);
+      --brick:#FF453A;
+      --brick-soft:rgba(255,69,58,0.16);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    overflow-x:hidden;
+    font-variant-numeric:tabular-nums;
+  }
+  button{font-family:inherit;cursor:pointer}
+  input,select{font-family:inherit}
+  #app{display:flex;min-height:100vh}
+
+  /* Sidebar */
+  .sidebar{
+    width:220px;flex-shrink:0;background:var(--sidebar-bg);color:var(--ink);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+    border-right:0.5px solid var(--border);
+    display:flex;flex-direction:column;padding:1.5rem 0.9rem;gap:2px;
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{font-size:19px;font-weight:700;color:var(--ink);margin:0 0 1.75rem 10px;letter-spacing:-0.01em}
+  .nav-item{
+    display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;
+    color:var(--ink-soft);font-size:14px;font-weight:500;border:none;background:none;text-align:left;width:100%;
+    transition:background .15s ease,color .15s ease;
+  }
+  .nav-item:hover{background:var(--paper-alt);color:var(--ink)}
+  .nav-item.active{background:var(--brass);color:#fff}
+  .nav-item svg{width:17px;height:17px;flex-shrink:0}
+  .nav-spacer{margin-top:auto}
+  .nav-version{font-size:11px;color:var(--muted);padding:10px}
+
+  /* Main */
+  main{flex:1;padding:2.25rem 3rem 3rem;max-width:1440px;width:100%}
+  .page-title{font-size:28px;font-weight:700;letter-spacing:-0.01em;margin:0 0 1.4rem 0;color:var(--ink)}
+  .row-between{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem;gap:1rem;flex-wrap:wrap}
+
+  .btn{
+    border:0.5px solid var(--border);background:var(--card);color:var(--ink);
+    padding:9px 16px;border-radius:10px;font-size:13.5px;font-weight:500;
+    transition:background .15s ease,transform .1s ease,filter .15s ease;
+  }
+  .btn:hover{background:var(--paper-alt)}
+  .btn:active{transform:scale(0.97)}
+  .btn-primary{background:var(--brass);color:#fff;border-color:var(--brass)}
+  .btn-primary:hover{filter:brightness(1.1)}
+  .btn-danger{color:var(--brick);border-color:var(--brick-soft)}
+  .btn-danger:hover{background:var(--brick-soft)}
+  .btn-ghost{border:none;background:none;padding:6px 8px;color:var(--muted)}
+  .btn-ghost:hover{color:var(--ink)}
+  .btn-sm{padding:6px 11px;font-size:12.5px}
+
+  .card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.35rem}
+  .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:1.5rem}
+  .metric-label{font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:500}
+  .metric-value{font-size:19px;color:var(--ink);font-weight:600;letter-spacing:-0.01em}
+  .metric-value.pos{color:var(--green)}
+  .metric-value.neg{color:var(--brick)}
+
+  .hero-total{font-size:42px;color:var(--ink);font-weight:700;letter-spacing:-0.02em;margin:2px 0 0 0}
+  .hero-label{font-size:13px;color:var(--muted);font-weight:500}
+
+  .stamp{
+    display:inline-flex;align-items:center;gap:6px;background:var(--brass-soft);
+    border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:500;color:var(--brass-text);
+    white-space:nowrap;
+  }
+  .stamp .dot{width:6px;height:6px;border-radius:50%;background:var(--brass)}
+
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;padding:9px 10px;border-bottom:0.5px solid var(--border);white-space:nowrap}
+  td{padding:11px 10px;font-size:13.5px;border-bottom:0.5px solid var(--border);white-space:nowrap}
+  tr.list-row{transition:background .12s ease}
+  tr.list-row:hover{background:var(--paper-alt)}
+  .num{text-align:right}
+  .num.pos{color:var(--green)}
+  .num.neg{color:var(--brick)}
+  .table-scroll{overflow-x:auto}
+
+  .account-swatch{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px}
+
+  .empty-state{padding:3rem 1.5rem;text-align:center;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--muted)}
+  .empty-state .empty-title{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:6px}
+  .empty-state p{font-size:13.5px;margin:0 0 1rem 0}
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;
+    justify-content:center;z-index:100;opacity:0;transition:opacity .18s ease;padding:1rem;
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  }
+  .modal-backdrop.open{opacity:1}
+  .modal{
+    background:var(--card);border-radius:20px;padding:1.5rem 1.5rem;width:100%;max-width:480px;
+    max-height:85vh;overflow-y:auto;transform:translateY(8px) scale(0.98);opacity:0;
+    transition:transform .18s ease,opacity .18s ease;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal-backdrop.open .modal{transform:translateY(0) scale(1);opacity:1}
+  .modal h3{font-size:19px;font-weight:700;margin:0 0 1rem 0}
+  .field{margin-bottom:0.9rem}
+  .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:500}
+  .field input,.field select{
+    width:100%;padding:9px 11px;border:0.5px solid var(--border);border-radius:9px;
+    font-size:14px;background:var(--paper-alt);color:var(--ink);
+  }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px var(--brass-soft)}
+  .field-row{display:flex;gap:10px}
+  .field-row .field{flex:1}
+  .swatches{display:flex;gap:8px;flex-wrap:wrap}
+  .swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+  .swatch.selected{border-color:var(--brass);box-shadow:0 0 0 2px var(--card)}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem}
+  .section-divider{border:none;border-top:0.5px solid var(--border);margin:1.1rem 0}
+  .subsection-title{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:0.02em;margin:0 0 0.7rem 0}
+  .solde-line{display:flex;justify-content:space-between;font-size:14px;font-weight:600;padding-top:8px}
+
+  /* Toast */
+  #toast-container{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:200}
+  .toast{
+    background:var(--ink);color:var(--paper);padding:11px 16px;border-radius:12px;font-size:13.5px;font-weight:500;
+    box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateX(20px);opacity:0;
+    transition:transform .2s ease,opacity .2s ease;max-width:320px;
+  }
+  .toast.show{transform:translateX(0);opacity:1}
+  .toast.success{background:var(--green);color:#fff}
+  .toast.error{background:var(--brick);color:#fff}
+
+  .just-added{animation:fadein .25s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+  .changelog-item{padding:10px 0;border-bottom:0.5px solid var(--border)}
+  .changelog-item:last-child{border-bottom:none}
+  .changelog-version{font-size:12.5px;font-weight:600;color:var(--brass-text);margin-bottom:3px}
+  .changelog-notes{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+  .settings-list .card{margin-bottom:12px}
+  .settings-row{display:flex;justify-content:space-between;align-items:center}
+  .settings-row .desc{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+  #chart-hit{cursor:crosshair}
+
+  /* Auth (onboarding / lock screen) */
+  .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+  .auth-card{width:100%;max-width:380px;background:var(--card);border:0.5px solid var(--border);border-radius:22px;padding:2rem 1.75rem;box-shadow:0 20px 60px rgba(0,0,0,0.14)}
+  .auth-logo{width:52px;height:52px;border-radius:14px;background:var(--brass);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:22px;margin-bottom:1.1rem}
+  .auth-title{font-size:21px;font-weight:700;margin:0 0 0.35rem 0;letter-spacing:-0.01em}
+  .auth-sub{font-size:13.5px;color:var(--muted);margin:0 0 1.4rem 0;line-height:1.45}
+  .auth-forgot{display:block;width:100%;text-align:center;margin-top:0.9rem;font-size:12.5px;color:var(--muted);background:none;border:none;padding:6px}
+  .auth-forgot:hover{color:var(--brass-text)}
+  .shake{animation:shake .35s ease}
+  @keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+
+  @media (max-width:760px){
+    #app{flex-direction:column}
+    .sidebar{width:100%;height:auto;position:relative;flex-direction:row;align-items:center;padding:1rem;overflow-x:auto;border-right:none;border-bottom:0.5px solid var(--border)}
+    .brand{display:none}
+    .nav-spacer{display:none}
+    .nav-version{display:none}
+    main{padding:1.25rem 1.25rem;max-width:100%}
+    .metrics-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<div id="auth-screen" style="display:none"></div>
+
+<div id="app" style="display:none">
+  <nav class="sidebar">
+    <div class="brand">Finance</div>
+    <button class="nav-item" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Tableau de bord</button>
+    <button class="nav-item" data-view="comptes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>Comptes</button>
+    <button class="nav-item" data-view="mois"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>Mois</button>
+    <div class="nav-spacer"></div>
+    <button class="nav-item" data-view="reglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>Réglages</button>
+    <div class="nav-version" id="nav-version"></div>
+  </nav>
+  <main id="view"></main>
+</div>
+
+<div id="toast-container"></div>
+<div id="modal-root"></div>
+
+<script>
+/* ============ VERSION & MISE À JOUR (identique au système MADA) ============ */
+const APP_VERSION = "1.2.0";
+
+async function checkForUpdate(manual){
+  try{
+    const res = await fetch("./index.html?_=" + Date.now(), { cache: "no-store" });
+    const text = await res.text();
+    const match = text.match(/APP_VERSION\s*=\s*"([^"]+)"/);
+    if (match && match[1] !== APP_VERSION) {
+      toast("Nouvelle version disponible, mise à jour…", "success");
+      setTimeout(() => {
+        location.href = location.pathname + "?v=" + match[1] + "&_=" + Date.now();
+      }, 1100);
+    } else if (manual) {
+      toast("Vous avez déjà la dernière version.", "success");
+    }
+  } catch(e){
+    if (manual) toast("Impossible de vérifier les mises à jour.", "error");
+  }
+}
+
+/* ============ CHANGELOG ============ */
+const CHANGELOG = [
+  { version: "1.0.0", date: "2026-08-04", notes: "Première version : comptes, saisie mensuelle, tableau de bord, export/import." },
+  { version: "1.1.0", date: "2026-08-04", notes: "Refonte visuelle complète (design plus moderne, mode sombre automatique), détail par compte dans Mois, courbe d'évolution lissée avec survol précis, mise en page pleine largeur." },
+  { version: "1.2.0", date: "2026-08-04", notes: "Ajout d'un mot de passe local (onboarding avec prénom, écran de verrouillage à chaque ouverture, changement de mot de passe dans Réglages, réinitialisation en cas d'oubli)." }
+];
+
+/* ============ ÉTAT & STOCKAGE ============ */
+const STORAGE_KEYS = {
+  accounts: "finance_accounts",
+  snapshots: "finance_snapshots",
+  categories: "finance_categories",
+  monthly: "finance_monthly",
+  settings: "finance_settings",
+  auth: "finance_auth"
+};
+
+const DEFAULT_CATEGORIES = [
+  { id: "cat_salaire", nom: "Salaire", sens: "entree" },
+  { id: "cat_aides", nom: "Aides", sens: "entree" },
+  { id: "cat_revsupp", nom: "Revenus supplémentaires", sens: "entree" },
+  { id: "cat_logement", nom: "Logement", sens: "sortie" },
+  { id: "cat_courses", nom: "Courses", sens: "sortie" },
+  { id: "cat_transport", nom: "Transport", sens: "sortie" },
+  { id: "cat_abonnements", nom: "Abonnements", sens: "sortie" },
+  { id: "cat_loisirs", nom: "Loisirs", sens: "sortie" },
+  { id: "cat_dettes", nom: "Dettes", sens: "sortie" },
+  { id: "cat_epargne", nom: "Épargne et investissements", sens: "sortie" },
+  { id: "cat_autres", nom: "Autres", sens: "sortie" }
+];
+
+const ACCOUNT_COLORS = ["#0A84FF", "#30D158", "#FF9F0A", "#FF375F", "#BF5AF2", "#64D2FF"];
+
+function loadJSON(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw);
+  } catch(e){ return fallback; }
+}
+function saveJSON(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch(e){ toast("Impossible d'enregistrer les données.", "error"); return false; }
+}
+
+function getAccounts(){ return loadJSON(STORAGE_KEYS.accounts, []); }
+function setAccounts(v){ saveJSON(STORAGE_KEYS.accounts, v); }
+function getSnapshots(){ return loadJSON(STORAGE_KEYS.snapshots, []).sort((a,b)=>a.date.localeCompare(b.date)); }
+function setSnapshots(v){ saveJSON(STORAGE_KEYS.snapshots, v); }
+function getCategories(){
+  let cats = loadJSON(STORAGE_KEYS.categories, null);
+  if (!cats) { cats = DEFAULT_CATEGORIES; saveJSON(STORAGE_KEYS.categories, cats); }
+  return cats;
+}
+function getMonthly(){ return loadJSON(STORAGE_KEYS.monthly, []).sort((a,b)=>a.date.localeCompare(b.date)); }
+function setMonthly(v){ saveJSON(STORAGE_KEYS.monthly, v); }
+function getSettings(){ return loadJSON(STORAGE_KEYS.settings, { clotureJour: 20 }); }
+
+function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,9); }
+
+/* ============ MOT DE PASSE (hash local, ne chiffre pas les données) ============ */
+function randomSalt(){
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+async function hashPassword(password, salt){
+  if (!window.crypto || !window.crypto.subtle) {
+    toast("Le mot de passe nécessite une connexion sécurisée (https). Vérifie l'URL de l'app.", "error");
+    throw new Error("SubtleCrypto unavailable");
+  }
+  const enc = new TextEncoder();
+  const data = enc.encode(salt + ":" + password);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+function getAuth(){ return loadJSON(STORAGE_KEYS.auth, null); }
+
+/* ============ UTILITAIRES ============ */
+function formatEUR(n){
+  if (n === null || n === undefined || isNaN(n)) n = 0;
+  return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+}
+function formatEURShort(n){
+  if (n === null || n === undefined || isNaN(n)) n = 0;
+  return Math.round(n).toLocaleString("fr-FR") + " €";
+}
+const MONTH_NAMES = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+function formatMonthLabel(dateStr){
+  const [y,m] = dateStr.split("-").map(Number);
+  return MONTH_NAMES[m-1].charAt(0).toUpperCase() + MONTH_NAMES[m-1].slice(1) + " " + y;
+}
+function currentMonthStr(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+}
+function shiftMonth(dateStr, delta){
+  let [y,m] = dateStr.split("-").map(Number);
+  m += delta;
+  while (m > 12) { m -= 12; y += 1; }
+  while (m < 1) { m += 12; y -= 1; }
+  return y + "-" + String(m).padStart(2,"0");
+}
+function computeSnapshotTotal(snapshot, accounts){
+  return accounts.reduce((sum, a) => sum + (Number(snapshot.valeurs[a.id]) || 0), 0);
+}
+function sumLignes(lignes, categories, sens){
+  return categories.filter(c => c.sens === sens).reduce((s,c) => s + (Number(lignes[c.id]) || 0), 0);
+}
+
+/* ============ NAVIGATION ============ */
+let currentView = "dashboard";
+
+function setView(view){
+  currentView = view;
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+  render();
+}
+document.querySelectorAll(".nav-item").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+
+/* ============ AUTHENTIFICATION ============ */
+function initAuth(){
+  const auth = getAuth();
+  if (!auth) renderOnboarding();
+  else renderLock(auth.prenom);
+}
+
+function unlockApp(){
+  document.getElementById("auth-screen").style.display = "none";
+  document.getElementById("auth-screen").innerHTML = "";
+  document.getElementById("app").style.display = "flex";
+  setView("dashboard");
+  checkForUpdate(false);
+}
+
+function renderOnboarding(){
+  document.getElementById("app").style.display = "none";
+  const el = document.getElementById("auth-screen");
+  el.style.display = "block";
+  el.innerHTML =
+    '<div class="auth-wrap"><div class="auth-card">' +
+      '<div class="auth-logo">F</div>' +
+      '<div class="auth-title">Bienvenue dans Finance</div>' +
+      '<div class="auth-sub">Crée un prénom et un mot de passe pour protéger l\'accès à l\'app sur cet appareil.</div>' +
+      '<div class="field"><label>Prénom</label><input type="text" id="ob-prenom" placeholder="Ton prénom"></div>' +
+      '<div class="field"><label>Mot de passe</label><input type="password" id="ob-pass" placeholder="Au moins 4 caractères"></div>' +
+      '<div class="field"><label>Confirme le mot de passe</label><input type="password" id="ob-pass2" placeholder="Retape le mot de passe"></div>' +
+      '<button class="btn btn-primary" style="width:100%;margin-top:0.4rem" id="ob-submit">Commencer</button>' +
+      '<p style="font-size:11.5px;color:var(--muted);margin-top:1rem;text-align:center;line-height:1.4">Ce mot de passe protège l\'accès à l\'app sur cet appareil. Il ne chiffre pas les données, qui restent en clair dans le navigateur.</p>' +
+    '</div></div>';
+  document.getElementById("ob-submit").addEventListener("click", submitOnboarding);
+  el.querySelectorAll("input").forEach(inp => inp.addEventListener("keydown", e => { if (e.key === "Enter") submitOnboarding(); }));
+  document.getElementById("ob-prenom").focus();
+}
+
+async function submitOnboarding(){
+  const prenom = document.getElementById("ob-prenom").value.trim();
+  const pass = document.getElementById("ob-pass").value;
+  const pass2 = document.getElementById("ob-pass2").value;
+  if (!prenom) { toast("Le prénom est requis.", "error"); return; }
+  if (pass.length < 4) { toast("Le mot de passe doit faire au moins 4 caractères.", "error"); return; }
+  if (pass !== pass2) { toast("Les mots de passe ne correspondent pas.", "error"); return; }
+  const salt = randomSalt();
+  const hash = await hashPassword(pass, salt);
+  saveJSON(STORAGE_KEYS.auth, { prenom, salt, hash });
+  toast("Bienvenue, " + prenom + " !", "success");
+  unlockApp();
+}
+
+function renderLock(prenom){
+  document.getElementById("app").style.display = "none";
+  const el = document.getElementById("auth-screen");
+  el.style.display = "block";
+  el.innerHTML =
+    '<div class="auth-wrap"><div class="auth-card" id="lock-card">' +
+      '<div class="auth-logo">F</div>' +
+      '<div class="auth-title">Bonjour ' + escapeAttr(prenom) + '</div>' +
+      '<div class="auth-sub">Entre ton mot de passe pour accéder à Finance.</div>' +
+      '<div class="field"><label>Mot de passe</label><input type="password" id="lock-pass" placeholder="Mot de passe"></div>' +
+      '<button class="btn btn-primary" style="width:100%;margin-top:0.4rem" id="lock-submit">Déverrouiller</button>' +
+      '<button class="auth-forgot" id="lock-forgot">Mot de passe oublié ?</button>' +
+    '</div></div>';
+  document.getElementById("lock-submit").addEventListener("click", submitLock);
+  document.getElementById("lock-forgot").addEventListener("click", forgotPasswordConfirm);
+  const passInput = document.getElementById("lock-pass");
+  passInput.addEventListener("keydown", e => { if (e.key === "Enter") submitLock(); });
+  passInput.focus();
+}
+
+async function submitLock(){
+  const auth = getAuth();
+  const passInput = document.getElementById("lock-pass");
+  const hash = await hashPassword(passInput.value, auth.salt);
+  if (hash === auth.hash) {
+    unlockApp();
+  } else {
+    toast("Mot de passe incorrect.", "error");
+    const card = document.getElementById("lock-card");
+    if (card) { card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake"); }
+    passInput.value = "";
+    passInput.focus();
+  }
+}
+
+function forgotPasswordConfirm(){
+  openModal(
+    '<h3>Réinitialiser le mot de passe ?</h3>' +
+    '<p style="font-size:13.5px;color:var(--ink-soft)">Le mot de passe n\'est pas récupérable. Continuer efface aussi toutes les données de l\'app (comptes, mois, réglages) sur cet appareil. Si tu as une sauvegarde JSON, tu pourras la réimporter ensuite.</p>' +
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Annuler</button>' +
+    '<button class="btn btn-danger" data-action="confirm-forgot-password">Réinitialiser tout</button></div>'
+  );
+}
+function wipeAllDataAndOnboard(){
+  Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+  toast("Données réinitialisées.", "success");
+  closeModal();
+  renderOnboarding();
+}
+
+/* ============ TOAST ============ */
+function toast(message, type){
+  const container = document.getElementById("toast-container");
+  const el = document.createElement("div");
+  el.className = "toast" + (type ? " " + type : "");
+  el.textContent = message;
+  container.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => {
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 250);
+  }, 3200);
+}
+
+/* ============ MODALE ============ */
+function closeModal(){
+  const backdrop = document.querySelector(".modal-backdrop");
+  if (!backdrop) return;
+  backdrop.classList.remove("open");
+  setTimeout(() => { document.getElementById("modal-root").innerHTML = ""; }, 160);
+}
+function openModal(html){
+  document.getElementById("modal-root").innerHTML =
+    '<div class="modal-backdrop" onclick="if(event.target===this) closeModal()"><div class="modal">' + html + '</div></div>';
+  requestAnimationFrame(() => document.querySelector(".modal-backdrop").classList.add("open"));
+}
+
+/* ============ RENDU PRINCIPAL ============ */
+function render(){
+  const view = document.getElementById("view");
+  if (currentView === "dashboard") { view.innerHTML = renderDashboard(); initChartInteraction(); }
+  else if (currentView === "comptes") view.innerHTML = renderComptes();
+  else if (currentView === "mois") view.innerHTML = renderMois();
+  else if (currentView === "reglages") view.innerHTML = renderReglages();
+  attachViewHandlers();
+}
+
+/* ============ VUE : TABLEAU DE BORD ============ */
+function renderDashboard(){
+  const accounts = getAccounts();
+  const snapshots = getSnapshots();
+  const settings = getSettings();
+
+  if (accounts.length === 0) {
+    return '<h1 class="page-title">Tableau de bord</h1>' + emptyState(
+      "Aucun compte pour l'instant",
+      "Ajoute au moins un compte pour commencer à suivre ton patrimoine.",
+      '<button class="btn btn-primary" data-action="go-comptes">Ajouter un compte</button>'
+    );
+  }
+
+  const last = snapshots[snapshots.length - 1];
+  const prev = snapshots[snapshots.length - 2];
+  const total = last ? computeSnapshotTotal(last, accounts) : 0;
+  const diff = (last && prev) ? total - computeSnapshotTotal(prev, accounts) : null;
+
+  const thisYear = new Date().getFullYear();
+  const yearSnaps = snapshots.filter(s => s.date.startsWith(String(thisYear)));
+  let avg = null;
+  if (yearSnaps.length >= 2) {
+    const diffs = [];
+    for (let i=1;i<yearSnaps.length;i++){
+      diffs.push(computeSnapshotTotal(yearSnaps[i],accounts) - computeSnapshotTotal(yearSnaps[i-1],accounts));
+    }
+    avg = diffs.reduce((a,b)=>a+b,0) / diffs.length;
+  }
+
+  const today = new Date();
+  const currentMonth = currentMonthStr();
+  const hasCurrentMonth = snapshots.some(s => s.date === currentMonth);
+  const closureNear = today.getDate() >= (settings.clotureJour - 3) && !hasCurrentMonth;
+
+  return '' +
+  '<div class="row-between">' +
+    '<div>' +
+      '<div class="hero-label">' + (last ? formatMonthLabel(last.date) : "Aucune donnée") + '</div>' +
+      '<div class="hero-total">' + formatEUR(total) + '</div>' +
+    '</div>' +
+    (closureNear ?
+      '<span class="stamp"><span class="dot"></span>clôture le ' + settings.clotureJour + '</span>' :
+      (hasCurrentMonth ? '<span class="stamp"><span class="dot"></span>mois clôturé</span>' : '')
+    ) +
+  '</div>' +
+  '<div class="metrics-grid">' +
+    metricCard("Variation du mois", diff === null ? "—" : (diff>=0?"+":"") + formatEURShort(diff), diff===null?"":(diff>=0?"pos":"neg")) +
+    metricCard("Moyenne " + thisYear, avg === null ? "—" : (avg>=0?"+":"") + formatEURShort(avg) + "/mois", avg===null?"":(avg>=0?"pos":"neg")) +
+    metricCard("Comptes suivis", String(accounts.length), "") +
+    metricCard("Mois suivis", String(snapshots.length), "") +
+  '</div>' +
+  '<div class="card" style="margin-bottom:1.5rem">' +
+    '<div class="subsection-title">Évolution du patrimoine</div>' +
+    (snapshots.length >= 2 ? evolutionChart(snapshots, accounts) : '<p style="color:var(--muted);font-size:13.5px">Ajoute au moins deux mois pour voir la courbe.</p>') +
+  '</div>' +
+  (snapshots.length > 0 ?
+    '<div class="card">' +
+      '<div class="subsection-title">Derniers mois</div>' +
+      '<table><tbody>' +
+        snapshots.slice(-6).reverse().map((s,i,arr) => {
+          const idxInFull = snapshots.indexOf(s);
+          const p = snapshots[idxInFull-1];
+          const t = computeSnapshotTotal(s, accounts);
+          const d = p ? t - computeSnapshotTotal(p, accounts) : null;
+          return '<tr class="list-row"><td>' + formatMonthLabel(s.date) + '</td>' +
+            '<td class="num">' + formatEUR(t) + '</td>' +
+            '<td class="num ' + (d===null?'':(d>=0?'pos':'neg')) + '">' + (d===null?'—':(d>=0?'+':'')+formatEURShort(d)) + '</td></tr>';
+        }).join("") +
+      '</tbody></table>' +
+    '</div>' : ''
+  );
+}
+
+function metricCard(label, value, cls){
+  return '<div class="card"><div class="metric-label">' + label + '</div><div class="metric-value ' + cls + '">' + value + '</div></div>';
+}
+
+function emptyState(title, desc, actionHtml){
+  return '<div class="empty-state"><div class="empty-title">' + title + '</div><p>' + desc + '</p>' + (actionHtml||'') + '</div>';
+}
+
+function smoothPath(pts){
+  if (pts.length < 2) return "";
+  if (pts.length === 2) return "M " + pts[0][0] + " " + pts[0][1] + " L " + pts[1][0] + " " + pts[1][1];
+  let d = "M " + pts[0][0] + " " + pts[0][1];
+  for (let i=0;i<pts.length-1;i++){
+    const p0 = pts[i-1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i+1];
+    const p3 = pts[i+2] || p2;
+    const c1x = p1[0] + (p2[0]-p0[0])/6, c1y = p1[1] + (p2[1]-p0[1])/6;
+    const c2x = p2[0] - (p3[0]-p1[0])/6, c2y = p2[1] - (p3[1]-p1[1])/6;
+    d += " C " + c1x + " " + c1y + ", " + c2x + " " + c2y + ", " + p2[0] + " " + p2[1];
+  }
+  return d;
+}
+
+let chartState = null;
+function evolutionChart(snapshots, accounts){
+  const w = 920, h = 230, padL = 48, padR = 16, padT = 16, padB = 26;
+  const totals = snapshots.map(s => computeSnapshotTotal(s, accounts));
+  const min = Math.min(0, ...totals);
+  const max = Math.max(...totals) * 1.1 || 1;
+  const x = i => padL + (i / (snapshots.length - 1)) * (w - padL - padR);
+  const y = v => padT + (1 - (v - min) / (max - min)) * (h - padT - padB);
+  const pts = totals.map((v,i) => [x(i), y(v)]);
+  const path = smoothPath(pts);
+  const areaPath = path + " L " + x(totals.length-1) + " " + y(min) + " L " + x(0) + " " + y(min) + " Z";
+
+  const gridLines = [];
+  for (let i=0;i<=4;i++){
+    const v = min + (max-min)*i/4;
+    gridLines.push('<line x1="' + padL + '" y1="' + y(v) + '" x2="' + (w-padR) + '" y2="' + y(v) + '" style="stroke:var(--border)" stroke-width="1"/>' +
+      '<text x="' + (padL-8) + '" y="' + (y(v)+3) + '" text-anchor="end" font-size="10.5" style="fill:var(--muted)">' + Math.round(v/1000) + ' k</text>');
+  }
+
+  const labelStep = Math.max(1, Math.ceil(snapshots.length / 8));
+  const xLabels = snapshots.map((s,i) => (i % labelStep === 0 || i === snapshots.length-1) ?
+    '<text x="' + x(i) + '" y="' + (h-8) + '" text-anchor="middle" font-size="10" style="fill:var(--muted)">' + s.date.slice(2) + '</text>' : '').join("");
+
+  chartState = { snapshots, totals, x, y, w, h, padT, padB };
+
+  return '<div style="position:relative;width:100%;overflow-x:auto">' +
+    '<svg id="evo-chart" viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;min-width:560px;height:' + h + 'px;display:block" role="img" aria-label="Courbe d\'évolution du patrimoine total" preserveAspectRatio="none">' +
+      gridLines.join("") +
+      '<path d="' + areaPath + '" style="fill:var(--brass)" opacity="0.1"/>' +
+      '<path d="' + path + '" fill="none" style="stroke:var(--brass)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<g id="chart-cursor" style="opacity:0">' +
+        '<line x1="0" y1="' + padT + '" x2="0" y2="' + (h-padB) + '" style="stroke:var(--muted)" stroke-width="1" stroke-dasharray="2,3"/>' +
+        '<circle r="4.5" style="fill:var(--brass);stroke:var(--card)" stroke-width="2"/>' +
+      '</g>' +
+      '<circle cx="' + x(totals.length-1) + '" cy="' + y(totals[totals.length-1]) + '" r="4" style="fill:var(--brass)"/>' +
+      xLabels +
+      '<rect id="chart-hit" x="' + padL + '" y="0" width="' + (w-padL-padR) + '" height="' + h + '" fill="transparent"/>' +
+    '</svg>' +
+    '<div id="chart-tooltip" style="position:absolute;pointer-events:none;opacity:0;transition:opacity .1s ease;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,0.15);white-space:nowrap;top:0;left:0;color:var(--ink)"></div>' +
+  '</div>';
+}
+
+function initChartInteraction(){
+  const hit = document.getElementById("chart-hit");
+  const svg = document.getElementById("evo-chart");
+  const cursor = document.getElementById("chart-cursor");
+  const tooltip = document.getElementById("chart-tooltip");
+  if (!hit || !svg || !chartState) return;
+  const { snapshots, totals, x, y, w, h } = chartState;
+  const line = cursor.querySelector("line");
+  const dot = cursor.querySelector("circle");
+
+  function update(clientX){
+    const rect = svg.getBoundingClientRect();
+    const relX = ((clientX - rect.left) / rect.width) * w;
+    let nearest = 0, best = Infinity;
+    for (let i=0;i<snapshots.length;i++){
+      const d = Math.abs(x(i) - relX);
+      if (d < best) { best = d; nearest = i; }
+    }
+    const cx = x(nearest), cy = y(totals[nearest]);
+    cursor.style.opacity = "1";
+    line.setAttribute("x1", cx); line.setAttribute("x2", cx);
+    dot.setAttribute("cx", cx); dot.setAttribute("cy", cy);
+    const px = (cx / w) * rect.width;
+    const py = (cy / h) * rect.height;
+    tooltip.textContent = formatMonthLabel(snapshots[nearest].date) + " · " + formatEUR(totals[nearest]);
+    tooltip.style.opacity = "1";
+    const tw = tooltip.offsetWidth;
+    tooltip.style.left = Math.max(0, Math.min(rect.width - tw, px - tw/2)) + "px";
+    tooltip.style.top = Math.max(0, py - 38) + "px";
+  }
+  hit.addEventListener("mousemove", (e) => update(e.clientX));
+  hit.addEventListener("mouseleave", () => { cursor.style.opacity = "0"; tooltip.style.opacity = "0"; });
+}
+
+/* ============ VUE : COMPTES ============ */
+function renderComptes(){
+  const accounts = getAccounts();
+  const snapshots = getSnapshots();
+  const last = snapshots[snapshots.length - 1];
+
+  const rows = accounts.map(a => {
+    const solde = last ? (Number(last.valeurs[a.id]) || 0) : 0;
+    return '<tr class="list-row">' +
+      '<td><span class="account-swatch" style="background:' + a.couleur + '"></span>' + a.nom + '</td>' +
+      '<td style="color:var(--muted);font-size:12.5px">' + a.type + '</td>' +
+      '<td class="num">' + formatEUR(solde) + '</td>' +
+      '<td style="text-align:right">' +
+        '<button class="btn-ghost btn-sm" data-action="edit-account" data-id="' + a.id + '">Modifier</button>' +
+        '<button class="btn-ghost btn-sm" data-action="delete-account" data-id="' + a.id + '">Supprimer</button>' +
+      '</td></tr>';
+  }).join("");
+
+  return '<div class="row-between"><h1 class="page-title" style="margin:0">Comptes</h1>' +
+    '<button class="btn btn-primary" data-action="add-account">Ajouter un compte</button></div>' +
+    (accounts.length === 0 ?
+      emptyState("Aucun compte", "Ajoute un compte (livret, courant, assurance vie...) pour démarrer le suivi.", '<button class="btn btn-primary" data-action="add-account">Ajouter un compte</button>') :
+      '<div class="card"><table><thead><tr><th>Nom</th><th>Type</th><th style="text-align:right">Solde actuel</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+    );
+}
+
+/* ============ VUE : MOIS ============ */
+function renderMois(){
+  const accounts = getAccounts();
+  const snapshots = getSnapshots();
+  const monthly = getMonthly();
+
+  if (accounts.length === 0) {
+    return '<h1 class="page-title">Mois</h1>' + emptyState(
+      "Ajoute d'abord un compte",
+      "La saisie mensuelle a besoin d'au moins un compte pour fonctionner.",
+      '<button class="btn btn-primary" data-action="go-comptes">Ajouter un compte</button>'
+    );
+  }
+
+  const nextMonth = snapshots.length ? shiftMonth(snapshots[snapshots.length-1].date, 1) : currentMonthStr();
+  const categories = getCategories();
+
+  const accountHeaders = accounts.map(a =>
+    '<th style="text-align:right"><span class="account-swatch" style="background:' + a.couleur + '"></span>' + a.nom + '</th>'
+  ).join("");
+
+  const rows = snapshots.slice().reverse().map((s, revIdx) => {
+    const idx = snapshots.length - 1 - revIdx;
+    const prev = snapshots[idx-1];
+    const total = computeSnapshotTotal(s, accounts);
+    const diff = prev ? total - computeSnapshotTotal(prev, accounts) : null;
+    const m = monthly.find(x => x.date === s.date);
+    const closed = s.date < currentMonthStr();
+    const solde = m ? (sumLignes(m.lignes, categories, "entree") - sumLignes(m.lignes, categories, "sortie")) : null;
+    const accountCells = accounts.map(a => {
+      const v = s.valeurs[a.id];
+      return '<td class="num" style="color:var(--muted)">' + (v !== undefined ? formatEURShort(Number(v)) : '—') + '</td>';
+    }).join("");
+    return '<tr class="list-row">' +
+      '<td>' + formatMonthLabel(s.date) + (closed ? ' <span class="stamp" style="padding:2px 8px;font-size:10.5px;margin-left:6px"><span class="dot" style="width:5px;height:5px"></span>clôturé</span>' : '') + '</td>' +
+      accountCells +
+      '<td class="num" style="font-weight:600">' + formatEUR(total) + '</td>' +
+      '<td class="num ' + (diff===null?'':(diff>=0?'pos':'neg')) + '">' + (diff===null?'—':(diff>=0?'+':'')+formatEURShort(diff)) + '</td>' +
+      '<td class="num ' + (solde===null?'':(solde>=0?'pos':'neg')) + '">' + (solde===null?'—':formatEURShort(solde)) + '</td>' +
+      '<td style="text-align:right"><button class="btn-ghost btn-sm" data-action="edit-month" data-date="' + s.date + '">Modifier</button></td>' +
+    '</tr>';
+  }).join("");
+
+  return '<div class="row-between"><h1 class="page-title" style="margin:0">Mois</h1>' +
+    '<button class="btn btn-primary" data-action="new-month" data-date="' + nextMonth + '">+ Nouveau mois (' + formatMonthLabel(nextMonth) + ')</button></div>' +
+    (snapshots.length === 0 ?
+      emptyState("Aucun mois enregistré", "Crée ton premier mois pour saisir les soldes de tes comptes.", '<button class="btn btn-primary" data-action="new-month" data-date="' + nextMonth + '">Créer ' + formatMonthLabel(nextMonth) + '</button>') :
+      '<div class="card table-scroll"><table><thead><tr><th>Mois</th>' + accountHeaders + '<th style="text-align:right">Total</th><th style="text-align:right">Variation</th><th style="text-align:right">Solde du mois</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+    );
+}
+
+/* ============ VUE : RÉGLAGES ============ */
+let cachedWeight = null;
+function renderReglages(){
+  const auth = getAuth() || {};
+  return '<h1 class="page-title">Réglages</h1>' +
+  '<div class="settings-list">' +
+    '<div class="card"><div class="settings-row">' +
+      '<div><div style="font-weight:500;font-size:14px">Sécurité</div><div class="desc">Connecté en tant que ' + escapeAttr(auth.prenom || "") + '</div></div>' +
+      '<button class="btn btn-sm" data-action="change-password">Modifier le mot de passe</button>' +
+    '</div></div>' +
+    '<div class="card"><div class="settings-row">' +
+      '<div><div style="font-weight:500;font-size:14px">Sauvegarde des données</div><div class="desc">Exporter ou importer toutes tes données au format JSON.</div></div>' +
+      '<div style="display:flex;gap:8px"><button class="btn btn-sm" data-action="export-json">Exporter</button><button class="btn btn-sm" data-action="import-json">Importer</button></div>' +
+    '</div></div>' +
+    '<div class="card"><div class="settings-row">' +
+      '<div><div style="font-weight:500;font-size:14px">Mises à jour</div><div class="desc">Version actuelle : <span style="font-family:var(--mono)">' + APP_VERSION + '</span></div></div>' +
+      '<button class="btn btn-sm" data-action="check-update">Rechercher une mise à jour</button>' +
+    '</div></div>' +
+    '<div class="card"><div class="settings-row">' +
+      '<div><div style="font-weight:500;font-size:14px">Poids de l\'app</div><div class="desc" id="app-weight">Calcul en cours…</div></div>' +
+    '</div></div>' +
+    '<div class="card"><div style="font-weight:500;font-size:14px;margin-bottom:8px">Changelog</div>' +
+      CHANGELOG.slice().reverse().map(c => '<div class="changelog-item"><div class="changelog-version">v' + c.version + ' — ' + c.date + '</div><p class="changelog-notes">' + c.notes + '</p></div>').join("") +
+    '</div>' +
+    '<div class="card" style="border-color:var(--brick-soft)"><div class="settings-row">' +
+      '<div><div style="font-weight:500;font-size:14px;color:var(--brick)">Réinitialiser les données</div><div class="desc">Supprime tous les comptes, mois, réglages et le mot de passe de cet appareil.</div></div>' +
+      '<button class="btn btn-danger btn-sm" data-action="reset-data">Réinitialiser</button>' +
+    '</div></div>' +
+  '</div>';
+}
+
+async function refreshAppWeight(){
+  try{
+    const res = await fetch("./index.html", { cache: "no-store" });
+    const blob = await res.blob();
+    const kb = (blob.size / 1024).toFixed(1);
+    const el = document.getElementById("app-weight");
+    if (el) el.textContent = kb + " Ko";
+  } catch(e){
+    const el = document.getElementById("app-weight");
+    if (el) el.textContent = "Indisponible";
+  }
+}
+
+/* ============ FORMULAIRES : COMPTES ============ */
+function openAccountForm(existingId){
+  const accounts = getAccounts();
+  const acc = accounts.find(a => a.id === existingId);
+  const colorSwatches = ACCOUNT_COLORS.map(c =>
+    '<div class="swatch ' + (acc && acc.couleur===c || (!acc && c===ACCOUNT_COLORS[0]) ? 'selected' : '') + '" style="background:' + c + '" data-color="' + c + '" onclick="selectSwatch(this)"></div>'
+  ).join("");
+
+  openModal(
+    '<h3>' + (acc ? "Modifier le compte" : "Ajouter un compte") + '</h3>' +
+    '<div class="field"><label>Nom du compte</label><input type="text" id="f-nom" value="' + (acc ? escapeAttr(acc.nom) : '') + '" placeholder="Ex. Livret A"></div>' +
+    '<div class="field"><label>Type</label><select id="f-type">' +
+      ["Courant","Épargne","Livret","Assurance vie","Autre"].map(t => '<option ' + (acc && acc.type===t ? 'selected':'') + '>' + t + '</option>').join("") +
+    '</select></div>' +
+    '<div class="field"><label>Couleur</label><div class="swatches">' + colorSwatches + '</div></div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn" onclick="closeModal()">Annuler</button>' +
+      '<button class="btn btn-primary" data-action="save-account" data-id="' + (existingId||'') + '">Enregistrer</button>' +
+    '</div>'
+  );
+}
+function selectSwatch(el){
+  el.parentElement.querySelectorAll(".swatch").forEach(s => s.classList.remove("selected"));
+  el.classList.add("selected");
+}
+function saveAccount(existingId){
+  const nom = document.getElementById("f-nom").value.trim();
+  const type = document.getElementById("f-type").value;
+  const colorEl = document.querySelector(".swatch.selected");
+  const couleur = colorEl ? colorEl.dataset.color : ACCOUNT_COLORS[0];
+  if (!nom) { toast("Le nom du compte est requis.", "error"); return; }
+  let accounts = getAccounts();
+  if (existingId) {
+    accounts = accounts.map(a => a.id === existingId ? { ...a, nom, type, couleur } : a);
+    toast("Compte modifié.", "success");
+  } else {
+    accounts.push({ id: uid("acc"), nom, type, couleur });
+    toast("Compte ajouté.", "success");
+  }
+  setAccounts(accounts);
+  closeModal();
+  render();
+}
+function deleteAccount(id){
+  openModal(
+    '<h3>Supprimer ce compte ?</h3>' +
+    '<p style="font-size:13.5px;color:var(--ink-soft)">Les valeurs enregistrées pour ce compte dans l\'historique des mois seront conservées mais ne seront plus affichées.</p>' +
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Annuler</button>' +
+    '<button class="btn btn-danger" data-action="confirm-delete-account" data-id="' + id + '">Supprimer</button></div>'
+  );
+}
+function confirmDeleteAccount(id){
+  setAccounts(getAccounts().filter(a => a.id !== id));
+  toast("Compte supprimé.", "success");
+  closeModal();
+  render();
+}
+
+/* ============ FORMULAIRES : MOIS ============ */
+function openMonthForm(date){
+  const accounts = getAccounts();
+  const categories = getCategories();
+  const snapshots = getSnapshots();
+  const monthly = getMonthly();
+  const existingSnap = snapshots.find(s => s.date === date);
+  const existingMonthly = monthly.find(m => m.date === date);
+  const prevSnap = snapshots.filter(s => s.date < date).sort((a,b)=>b.date.localeCompare(a.date))[0];
+
+  const accountFields = accounts.map(a => {
+    const val = existingSnap ? existingSnap.valeurs[a.id] : (prevSnap ? prevSnap.valeurs[a.id] : "");
+    return '<div class="field"><label><span class="account-swatch" style="background:' + a.couleur + '"></span>' + a.nom + '</label>' +
+      '<input type="number" step="0.01" class="acc-input" data-id="' + a.id + '" value="' + (val !== undefined && val !== "" ? val : "") + '" placeholder="0.00"></div>';
+  }).join("");
+
+  const entreeFields = categories.filter(c => c.sens === "entree").map(c => {
+    const val = existingMonthly ? existingMonthly.lignes[c.id] : "";
+    return catField(c, val);
+  }).join("");
+  const sortieFields = categories.filter(c => c.sens === "sortie").map(c => {
+    const val = existingMonthly ? existingMonthly.lignes[c.id] : "";
+    return catField(c, val);
+  }).join("");
+
+  openModal(
+    '<h3>' + formatMonthLabel(date) + '</h3>' +
+    '<div class="subsection-title">Soldes des comptes</div>' +
+    accountFields +
+    '<hr class="section-divider">' +
+    '<div class="subsection-title">Entrées d\'argent</div>' +
+    entreeFields +
+    '<hr class="section-divider">' +
+    '<div class="subsection-title">Sorties d\'argent</div>' +
+    sortieFields +
+    '<div class="modal-actions">' +
+      '<button class="btn" onclick="closeModal()">Annuler</button>' +
+      '<button class="btn btn-primary" data-action="save-month" data-date="' + date + '">Enregistrer</button>' +
+    '</div>'
+  );
+}
+function catField(c, val){
+  return '<div class="field"><label>' + c.nom + '</label>' +
+    '<input type="number" step="0.01" class="cat-input" data-id="' + c.id + '" value="' + (val !== undefined && val !== "" ? val : "") + '" placeholder="0.00"></div>';
+}
+function saveMonth(date){
+  const valeurs = {};
+  document.querySelectorAll(".acc-input").forEach(inp => { valeurs[inp.dataset.id] = parseFloat(inp.value) || 0; });
+  const lignes = {};
+  document.querySelectorAll(".cat-input").forEach(inp => { lignes[inp.dataset.id] = parseFloat(inp.value) || 0; });
+
+  let snapshots = getSnapshots();
+  const idx = snapshots.findIndex(s => s.date === date);
+  if (idx >= 0) snapshots[idx] = { date, valeurs };
+  else snapshots.push({ date, valeurs });
+  setSnapshots(snapshots);
+
+  let monthly = getMonthly();
+  const midx = monthly.findIndex(m => m.date === date);
+  if (midx >= 0) monthly[midx] = { date, lignes };
+  else monthly.push({ date, lignes });
+  setMonthly(monthly);
+
+  toast(formatMonthLabel(date) + " enregistré.", "success");
+  closeModal();
+  render();
+}
+
+/* ============ EXPORT / IMPORT / RESET ============ */
+function exportData(){
+  const data = {
+    exportedAt: new Date().toISOString(),
+    appVersion: APP_VERSION,
+    accounts: getAccounts(),
+    snapshots: getSnapshots(),
+    categories: getCategories(),
+    monthly: getMonthly(),
+    settings: getSettings()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "finance-export-" + new Date().toISOString().slice(0,10) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast("Export terminé.", "success");
+}
+function triggerImport(){
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(reader.result);
+        openModal(
+          '<h3>Importer ces données ?</h3>' +
+          '<p style="font-size:13.5px;color:var(--ink-soft)">Cela remplacera toutes les données actuelles de l\'app par celles du fichier importé.</p>' +
+          '<div class="modal-actions"><button class="btn" onclick="closeModal()">Annuler</button>' +
+          '<button class="btn btn-primary" id="confirm-import">Importer</button></div>'
+        );
+        document.getElementById("confirm-import").onclick = () => {
+          if (data.accounts) setAccounts(data.accounts);
+          if (data.snapshots) setSnapshots(data.snapshots);
+          if (data.categories) saveJSON(STORAGE_KEYS.categories, data.categories);
+          if (data.monthly) setMonthly(data.monthly);
+          if (data.settings) saveJSON(STORAGE_KEYS.settings, data.settings);
+          toast("Import terminé.", "success");
+          closeModal();
+          render();
+        };
+      } catch(err){
+        toast("Fichier invalide.", "error");
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function resetDataConfirm(){
+  openModal(
+    '<h3>Réinitialiser toutes les données ?</h3>' +
+    '<p style="font-size:13.5px;color:var(--ink-soft)">Cette action est irréversible. Pense à exporter une sauvegarde avant si besoin.</p>' +
+    '<div class="modal-actions"><button class="btn" onclick="closeModal()">Annuler</button>' +
+    '<button class="btn btn-danger" data-action="confirm-reset">Réinitialiser</button></div>'
+  );
+}
+function confirmReset(){
+  wipeAllDataAndOnboard();
+}
+
+/* ============ HELPERS ============ */
+function escapeAttr(str){ return String(str).replace(/"/g,"&quot;"); }
+
+/* ============ FORMULAIRE : MOT DE PASSE ============ */
+function openChangePasswordForm(){
+  const auth = getAuth() || {};
+  openModal(
+    '<h3>Modifier le mot de passe</h3>' +
+    '<div class="field"><label>Prénom</label><input type="text" id="cp-prenom" value="' + escapeAttr(auth.prenom || "") + '"></div>' +
+    '<div class="field"><label>Mot de passe actuel</label><input type="password" id="cp-current" placeholder="Mot de passe actuel"></div>' +
+    '<div class="field"><label>Nouveau mot de passe</label><input type="password" id="cp-new" placeholder="Au moins 4 caractères"></div>' +
+    '<div class="field"><label>Confirme le nouveau mot de passe</label><input type="password" id="cp-new2" placeholder="Retape le nouveau mot de passe"></div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn" onclick="closeModal()">Annuler</button>' +
+      '<button class="btn btn-primary" data-action="save-password">Enregistrer</button>' +
+    '</div>'
+  );
+}
+async function savePasswordChange(){
+  const auth = getAuth() || {};
+  const prenom = document.getElementById("cp-prenom").value.trim();
+  const current = document.getElementById("cp-current").value;
+  const next = document.getElementById("cp-new").value;
+  const next2 = document.getElementById("cp-new2").value;
+  if (!prenom) { toast("Le prénom est requis.", "error"); return; }
+  const currentHash = await hashPassword(current, auth.salt);
+  if (currentHash !== auth.hash) { toast("Mot de passe actuel incorrect.", "error"); return; }
+  if (next.length < 4) { toast("Le nouveau mot de passe doit faire au moins 4 caractères.", "error"); return; }
+  if (next !== next2) { toast("Les mots de passe ne correspondent pas.", "error"); return; }
+  const salt = randomSalt();
+  const hash = await hashPassword(next, salt);
+  saveJSON(STORAGE_KEYS.auth, { prenom, salt, hash });
+  toast("Mot de passe modifié.", "success");
+  closeModal();
+  render();
+}
+
+/* ============ ÉVÉNEMENTS (délégation globale unique) ============ */
+/* Un seul écouteur sur document.body : couvre les vues ET les modales,
+   qui sont injectées séparément et ne passent jamais par render(). */
+document.body.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-action]");
+  if (!el) return;
+  const action = el.dataset.action;
+  const id = el.dataset.id;
+  const date = el.dataset.date;
+  if (action === "go-comptes") setView("comptes");
+  else if (action === "add-account") openAccountForm(null);
+  else if (action === "edit-account") openAccountForm(id);
+  else if (action === "delete-account") deleteAccount(id);
+  else if (action === "confirm-delete-account") confirmDeleteAccount(id);
+  else if (action === "save-account") saveAccount(id || null);
+  else if (action === "new-month") openMonthForm(date);
+  else if (action === "edit-month") openMonthForm(date);
+  else if (action === "save-month") saveMonth(date);
+  else if (action === "export-json") exportData();
+  else if (action === "import-json") triggerImport();
+  else if (action === "reset-data") resetDataConfirm();
+  else if (action === "confirm-reset") confirmReset();
+  else if (action === "confirm-forgot-password") wipeAllDataAndOnboard();
+  else if (action === "change-password") openChangePasswordForm();
+  else if (action === "save-password") savePasswordChange();
+  else if (action === "check-update") checkForUpdate(true);
+});
+function attachViewHandlers(){
+  if (currentView === "reglages") refreshAppWeight();
+}
+
+/* ============ INITIALISATION ============ */
+document.getElementById("nav-version").textContent = "v" + APP_VERSION;
+initAuth();
+</script>
+</body>
+</html>
